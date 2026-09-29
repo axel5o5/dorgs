@@ -1,25 +1,26 @@
 {
   "name": "dorgs",
   "version": "1.0.0",
-  "description": "",
-  "main": "src/index.js",
+  "description": "Artificial life simulation using neural networks and neuroevolution",
+  "private": true,
   "scripts": {
-    "test": "mocha --recursive --exit"
+    "start": "node server.js",
+    "test": "mocha --recursive"
   },
   "type": "module",
+  "engines": {
+    "node": ">=26.0.0 <27"
+  },
+  "packageManager": "npm@11.12.1",
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "GPL-3.0-only",
   "dependencies": {
-    "chai": "^4.3.6",
-    "express": "^4.17.3",
-    "flatted": "^3.2.5",
-    "itertools": "^1.7.1",
-    "open": "^8.4.0",
-    "set-utils": "^1.0.4"
+    "open": "^11.0.4"
   },
   "devDependencies": {
-    "mocha": "^9.2.2",
-    "prettier": "2.5.1"
+    "chai": "^6.2.2",
+    "mocha": "^12.0.2",
+    "prettier": "3.9.8"
   }
 }

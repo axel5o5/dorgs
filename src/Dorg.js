@@ -1,5 +1,6 @@
 import { palette, random, directions, moves } from './constants.js';
-import { range } from './neat/utils.js';
+import Genome from './neat/Genome.js';
+import { tanh } from './neat/activations.js';
 import Entity from './Entity.js';
 import Melon from './Melon.js'
 import Nearest from './sensors/Nearest.js';
@@ -17,22 +18,23 @@ class Dorg extends Entity {
     this.beingWatched = false;
     this.facing = directions.NORTH;
     this.sensors = []
+    this.brain = null;
     if (idx == 1) {
       this.sensors.push(new Nearest(this, Melon, new Manhattan(this, 5)))
+      this.brain = new Genome(2, 4, tanh);
+      this.brain.generate();
     }
   }
 
   updateFacing(move) {
-    console.log(move);
     switch(move) {
       case (moves.FORWARD):
-        console.log('forward!')
         break;
       case (moves.LEFT):
-        this.facing = (this.facing + 1) % Object.keys(directions).length;
+        this.facing = (this.facing + 3) % Object.keys(directions).length;
         break;
       case (moves.RIGHT):
-        this.facing = (this.facing - 1) % Object.keys(directions).length;
+        this.facing = (this.facing + 1) % Object.keys(directions).length;
         break;
       case (moves.BACKWARD):
         this.facing = (this.facing + 2) % Object.keys(directions).length;
@@ -51,18 +53,15 @@ class Dorg extends Entity {
       $('#lifetime').html(this.lifetime);
       $('#food').html(this.food);
       if (this.override != null) {
-        console.log(this.override);
         choice = this.override;
       } else {
-        choice = this.actRandom();
+        choice = this.brain ? this.actBrain() : this.actRandom();
       }
     } else {
-      choice = this.actRandom();
+      choice = this.brain ? this.actBrain() : this.actRandom();
     }
     this.override = null;
     this.do(choice);
-    if (this.idx == 1)
-      console.log(this.sensors[0].sense());
     this.updateGrid();
   }
 
@@ -109,20 +108,27 @@ class Dorg extends Entity {
     this.clearCell();
     switch (this.facing) {
       case directions.NORTH:
-        console.log("hey");
         this.r--;
         break;
       case directions.EAST:
-        this.c--;
+        this.c++;
         break;
       case directions.SOUTH:
         this.r++;
         break;
       case directions.WEST:
-        this.c++;
+        this.c--;
         break;
     }
     this.tryEat()
+  }
+
+  actBrain() {
+    const outputs = this.brain.forward(this.sensors[0].sense());
+    const choices = [moves.FORWARD, moves.BACKWARD, moves.LEFT, moves.RIGHT];
+    if (!outputs.every(Number.isFinite)) return this.actRandom();
+    // First maximum wins ties, including the all-zero no-food case.
+    return choices[outputs.indexOf(Math.max(...outputs))];
   }
 
   actRandom() {

@@ -1,6 +1,5 @@
-import { edgeKeyToNodeIds, range } from './utils';
-import { intersect, diff, union } from 'set-utils';
-import Genome from './Genome';
+import { edgeKeyToNodeIds, range } from './utils.js';
+import Genome from './Genome.js';
 
 export default function crossover(a, b) {
   if (b.fitness > a.fitness) [a, b] = [b, a];
@@ -9,13 +8,13 @@ export default function crossover(a, b) {
   const bEdges = new Set(Object.keys(b.edges));
 
   // Inherit homologous genes from random parent
-  for (let key of intersect(aEdges, bEdges)) {
+  for (let key of aEdges.intersection(bEdges)) {
     const edge = random.coin() === 'heads' ? aEdges[key] : bEdges[key];
     child.edges[key] = edge.clone();
   }
 
   // Inherit disjoin/excess genes from fitter parent
-  for (let key of diff(aEdges, bEdges)) {
+  for (let key of aEdges.difference(bEdges)) {
     child.edges[key] = a.edges[key].clone();
   }
 
@@ -54,8 +53,8 @@ export function genomicDistance(a, b, distanceWeights) {
   const aEdges = new Set(Object.keys(a.edges));
   const bEdges = new Set(Object.keys(b.edges));
 
-  const matchingEdges = intersect(aEdges, bEdges);
-  const disjointEdges = union(diff(aEdges, bEdges), diff(bEdges, aEdges));
+  const matchingEdges = aEdges.intersection(bEdges);
+  const disjointEdges = aEdges.difference(bEdges).union(bEdges.difference(aEdges));
   const nEdges = Math.max(aEdges.length, bEdges.length);
   const nNodes = Math.min(a.maxNode, b.maxNode);
 

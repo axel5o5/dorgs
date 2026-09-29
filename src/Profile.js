@@ -1,3 +1,5 @@
+import { moves } from './constants.js';
+
 class Profile {
   constructor(dorg = null) {
     this.dorg = dorg;
@@ -7,13 +9,13 @@ class Profile {
 
   handleKeyInput = (e) => {
     if (e.key == 'ArrowUp' || e.key == 'w') {
-      this.dorg.override = 'up';
+      this.dorg.override = moves.FORWARD;
     } else if (e.key == 'ArrowLeft' || e.key == 'a') {
-      this.dorg.override = 'left';
+      this.dorg.override = moves.LEFT;
     } else if (e.key == 'ArrowDown' || e.key == 's') {
-      this.dorg.override = 'down';
+      this.dorg.override = moves.BACKWARD;
     } else if (e.key == 'ArrowRight' || e.key == 'd') {
-      this.dorg.override = 'right';
+      this.dorg.override = moves.RIGHT;
     }
     this.updateElement();
   };

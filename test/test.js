@@ -1,7 +1,6 @@
 import { assert } from 'chai';
 // import random from '../src/Random.js';
 import { allEqual } from './utils.js';
-import { sum } from 'itertools';
 import Genome from '../src/neat/Genome.js';
 import { tanh } from '../src/neat/activations.js';
 import Random from '../src/Random.js';
@@ -63,7 +62,11 @@ describe('Random', () => {
       assert(rand < 1);
       rands.push(rand);
     }
-    assert.approximately(sum(rands), precision / 2, precision / 20);
+    assert.approximately(
+      rands.reduce((sum, value) => sum + value, 0),
+      precision / 2,
+      precision / 20,
+    );
   });
 
   it('coin', () => {
@@ -103,7 +106,10 @@ describe('Random', () => {
       const choice = random.choice(choices);
       counts[choice]++;
     }
-    assert.equal(sum(counts), precision);
+    assert.equal(
+      counts.reduce((sum, count) => sum + count, 0),
+      precision,
+    );
     assert.approximately(counts[0], counts[1], precision / 20);
     assert.approximately(counts[1], counts[2], precision / 20);
     assert.approximately(counts[0], counts[2], precision / 20);

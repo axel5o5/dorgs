@@ -1,7 +1,6 @@
 import Edge from './Edge.js';
 import { random } from '../constants.js';
 import { range, nodeIdsToEdgeKey, edgeKeyToNodeIds } from './utils.js';
-import { chain } from 'itertools';
 import Node from './Node.js';
 import { hyperparams } from './constants.js';
 
@@ -51,9 +50,9 @@ export default class Genome {
 
     // Calculate output values for each node
     const ordered_nodes = this.getOrderedNodes();
-    for (j of ordered_nodes) {
-      const ax = 0;
-      for (i of from[j]) {
+    for (const j of ordered_nodes) {
+      let ax = 0;
+      for (const i of from[j]) {
         const key = nodeIdsToEdgeKey(i, j);
         ax += this.edges[key].weight * this.nodes[i].output;
       }
@@ -166,7 +165,7 @@ export default class Genome {
   }
 
   getOrderedNodes() {
-    return chain(this.getHiddenIndices(), this.getOutputIndices());
+    return [...this.getHiddenIndices(), ...this.getOutputIndices()];
   }
 
   isDisabled() {
@@ -212,11 +211,11 @@ export default class Genome {
   }
 
   getNonInputIndices() {
-    return chain(this.getOutputIndices(), this.getHiddenIndices());
+    return [...this.getOutputIndices(), ...this.getHiddenIndices()];
   }
 
   getNonOutputIndices() {
-    return chain(this.getInputIndices(), this.getHiddenIndices());
+    return [...this.getInputIndices(), ...this.getHiddenIndices()];
   }
 
   isInput(n) {

@@ -1,7 +1,6 @@
 import { hyperparams } from './constants.js';
 import { random } from '../constants.js';
 import { genomicDistance } from './crossover.js';
-import { max, sorted, sum } from 'itertools';
 
 export default class Specie {
   constructor(maxFitnessHistory, ...members) {
@@ -27,14 +26,14 @@ export default class Specie {
     // update adjusted fitness for every genome in the specie
     for (g of this.members) g.adjustedFitness = g.fitness / this.members.length;
     // recalculate current fitness sum
-    this.fitnessSum = sum(this.members.map((g) => g.adjustedFitness));
+    this.fitnessSum = this.members.reduce((sum, g) => sum + g.adjustedFitness, 0);
     // update fitness history
     this.fitnessHistory.push(this.fitnessSum);
     if (this.fitnessHistory.length > this.maxFitnessHistory) this.fitnessHistory.shift();
   }
 
   cullGenomes(fittestOnly) {
-    this.members = sorted(this.members, (g) => g.fitness, True);
+    this.members = [...this.members].sort((a, b) => a.fitness - b.fitness).reverse();
     // Only keep the winning genome
     if (fittestOnly) this.members = this.members.slice(0, 1);
     // Keep top 25%
@@ -42,12 +41,15 @@ export default class Specie {
   }
 
   getBest() {
-    return max(this.members, (g) => g.fitness);
+    return this.members.reduce(
+      (best, genome) => (best === undefined || genome.fitness >= best.fitness ? genome : best),
+      undefined,
+    );
   }
 
   canProgress() {
     const n = this.fitnessHistory.length;
-    const avg = sum(this.fitnessHistory) / n;
+    const avg = this.fitnessHistory.reduce((sum, fitness) => sum + fitness, 0) / n;
     return avg > this.fitnessHistory[0] || n < this.maxFitnessHistory;
   }
 }
